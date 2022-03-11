@@ -38,7 +38,7 @@ participant_data <- readxl::read_excel("./data/participants_data.xlsx", col_name
 
 setnames(participant_data, old = c("col_1", "col_9", "col_10", "col_14", "col_22", "col_30"), new = c("sex", "education", "religion", "n_kids", "personal_income", "age"))
 
-participant_data[, Female:=(sex==2)]
+participant_data[, female:=(sex==2)]
 
 participant_data <- participant_data[, -c("ext_id", "start", "finish", "sex", "col_3", "col_6", "col_8", "col_12", "col_21", "col_42", "col_425", "col_2581")]
 
@@ -47,6 +47,14 @@ income_label_table <- data.table(personal_income = c(0, 1, 2, 3, 4, 5, 6), incom
 participant_data <- merge(participant_data, income_label_table, by = "personal_income")
 
 clean_data <- merge(short_data, participant_data, by.x = "userID", by.y = "GUID")
+
+
+# Add useful variables ----------------------------------------------------
+
+clean_data[, c("redistribution", "applied_inequality"):=.(12-SC0, abs(2*SC0-12)/12)]
+clean_data[, `high education`:= ifelse(education %in% c(5,6), TRUE, FALSE)]
+clean_data[, `high income`:= ifelse(is.na(income_label), NA, income_label=="High Income")]
+
 
 # save data ---------------------------------------------------------------
 
